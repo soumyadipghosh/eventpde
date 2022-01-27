@@ -1,8 +1,8 @@
-## Event-Triggered Communication in Parallel PDE solvers
+# Event-Triggered Communication in Parallel PDE solvers
 
 This repository implements event-triggered communication in a parallel SOR solver for the Pressure Poisson PDE for multiphase flows. 
 
-# Instructions on code
+## Details on code
 
 `sync.c` - Implements the baseline bulk synchronous parallel solver
 
