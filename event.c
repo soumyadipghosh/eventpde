@@ -188,7 +188,11 @@ int main(int argc, char *argv[]) {
   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
 
   // create memory window for MPI RMA
-  // TODO - RMA window structure
+  // RMA window structure:
+  // dom_dim_y * dom_dim_z (left boundary surface) +
+  // dom_dim_y * dom_dim_z (right boundary surface) +
+  // 1 (global convergence flag) +
+  // numtasks (local convergence flags of each processor)
   win_mem = (double *)calloc(2 * dom_dim_y * dom_dim_z + 1 + numtasks,
                              sizeof(double));
   MPI_Win_create(win_mem,
