@@ -653,7 +653,8 @@ int main(int argc, char *argv[]) {
 
       // Calculate norms of iteration error
       local_avg_error =
-          calc_residual_sum(start, end, dom_dim_x, dom_dim_y, dom_dim_z, e);
+          calc_residual_sum(start, end, dom_dim_x, dom_dim_y, dom_dim_z, e)
+            / (rows * dom_dim_y * dom_dim_z);
       local_max_error =
           calc_residual_max(start, end, dom_dim_x, dom_dim_y, dom_dim_z, e);
 
@@ -832,7 +833,7 @@ int main(int argc, char *argv[]) {
              MPI_COMM_WORLD);
   }
 
-  // MASTER get values from remaining processes and writes to files
+  // MASTER gets values from remaining processes and writes to files
   if (taskid == MASTER) {
     tend = MPI_Wtime();
 
@@ -900,7 +901,7 @@ void update(int start, int end, int nx, int ny, int nz, long int wsteps,
         *(e + ix * ny * nz + iy * nz + iz) =
             *(u + ix * ny * nz + iy * nz + iz); // storing old solution
 
-        // Applying periodic BC along J and K axes
+        // Applying periodic BC along Y and Z axes
         if (iy == 1)
           *(u + ix * ny * nz + (iy - 1) * nz + iz) =
               *(u + ix * ny * nz + (ny - 2) * nz + iz);
