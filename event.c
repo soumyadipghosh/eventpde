@@ -9,14 +9,14 @@ Author - Soumyadip Ghosh
 #include <string.h>
 #include <time.h>
 
-#define BEGIN 1  /* message tag */
-#define LTAG 2   /* message tag */
-#define RTAG 10  /* message tag */
-#define NONE -1  /* indicates no neighbor */
-#define DONE 5   /* message tag */
-#define MASTER 0 /* taskid of first process */
-#define TOL 1e-8 /* tolerance for convergence */
-#define EXTRA_ITER 20 //10
+#define BEGIN 1       /* message tag */
+#define LTAG 2        /* message tag */
+#define RTAG 10       /* message tag */
+#define NONE -1       /* indicates no neighbor */
+#define DONE 5        /* message tag */
+#define MASTER 0      /* taskid of first process */
+#define TOL 1e-8      /* tolerance for convergence */
+#define EXTRA_ITER 20 // 10
 
 void readData(double *, double *, int, int, int);
 void update(int, int, int, int, int, long int, double *, double *, double *,
@@ -44,12 +44,10 @@ int main(int argc, char *argv[]) {
   if (NXPROB == 1600) {
     NYPROB = 100;
     NZPROB = 100;
-  }
-  else if (NXPROB == 2400) {
+  } else if (NXPROB == 2400) {
     NYPROB = 150;
     NZPROB = 150;
-  }
-  else {
+  } else {
     NYPROB = NXPROB;
     NZPROB = NXPROB;
   }
@@ -68,8 +66,8 @@ int main(int argc, char *argv[]) {
       msgtype = 0,          // for message types
       start = 0, end = 0,   // for sub-domain assigned to this rank
       i = 0, ix = 0, iy = 0, iz = 0, it = 0; // loop variables
-  long int wsteps = 0;      // compute iterations
-  long int wpasses = 0;     // passes = compute iterations + idle iterations
+  long int wsteps = 0;                       // compute iterations
+  long int wpasses = 0; // passes = compute iterations + idle iterations
   MPI_Status status;
   double tstart = 0.0, tend = 0.0;
   double cpu_time_used = 0.0;
@@ -275,7 +273,6 @@ int main(int argc, char *argv[]) {
       MPI_Send((mat + (offset - 1) * mat_dim_y * mat_dim_z * 7),
                rows * mat_dim_y * mat_dim_z * 7, MPI_DOUBLE, dest, BEGIN,
                MPI_COMM_WORLD);
-
     }
 
     // values for MASTER
@@ -371,7 +368,8 @@ int main(int argc, char *argv[]) {
         fprintf(fs, "%2.12lf %2.12lf %2.12lf %2.12lf ", left_send_norm,
                 right_send_norm, left_thres, right_thres);
 
-      // If condition for event is triggered at left boundary after first few iterations
+      // If condition for event is triggered at left boundary after first few
+      // iterations
       if (left != NONE && (left_send_diff >= left_thres || wsteps < 2000)) {
 
         // transfer boundary using one-sided communication
@@ -411,7 +409,8 @@ int main(int argc, char *argv[]) {
           fprintf(fs, "%d ", 0); // record for no event being triggered
       }
 
-      // If condition for event is triggered at right boundary after first few iterations
+      // If condition for event is triggered at right boundary after first few
+      // iterations
       if (right != NONE && (right_send_diff >= right_thres || wsteps < 2000)) {
 
         // transfer boundary using one-sided communication
@@ -589,7 +588,7 @@ int main(int argc, char *argv[]) {
             fprintf(fr, "%d ", 1); // record for value received
 
         } else { // if new values not received, extrapolate based on history
-          
+
           for (iy = 0; iy < dom_dim_y; iy++) {
             for (iz = 0; iz < dom_dim_z; iz++) {
 
@@ -629,23 +628,21 @@ int main(int argc, char *argv[]) {
       // Calculate local residuals
       calc_residual(start, end, dom_dim_x, dom_dim_y, dom_dim_z, wsteps, mat, u,
                     b, residual);
-      local_avg_residual =
-          calc_residual_sum(start, end, dom_dim_x, dom_dim_y, dom_dim_z,
-                            residual) / (rows * dom_dim_y * dom_dim_z);
-      local_max_residual =
-          calc_residual_max(start, end, dom_dim_x, dom_dim_y, dom_dim_z,
-                            residual);
+      local_avg_residual = calc_residual_sum(start, end, dom_dim_x, dom_dim_y,
+                                             dom_dim_z, residual) /
+                           (rows * dom_dim_y * dom_dim_z);
+      local_max_residual = calc_residual_max(start, end, dom_dim_x, dom_dim_y,
+                                             dom_dim_z, residual);
 
       // Calculate the norms of global residual only for the first iteration
-      // This is used for verification of convergence 
+      // This is used for verification of convergence
       if (wsteps == 0) {
         init_local_avg_residual = local_avg_residual;
         init_local_max_residual = local_max_residual;
 
         MPI_Allreduce(&init_local_avg_residual, &init_global_avg_residual, 1,
                       MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-        init_global_avg_residual =
-            init_global_avg_residual / numtasks;
+        init_global_avg_residual = init_global_avg_residual / numtasks;
 
         MPI_Allreduce(&init_local_max_residual, &init_global_max_residual, 1,
                       MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -653,8 +650,8 @@ int main(int argc, char *argv[]) {
 
       // Calculate norms of iteration error
       local_avg_error =
-          calc_residual_sum(start, end, dom_dim_x, dom_dim_y, dom_dim_z, e)
-            / (rows * dom_dim_y * dom_dim_z);
+          calc_residual_sum(start, end, dom_dim_x, dom_dim_y, dom_dim_z, e) /
+          (rows * dom_dim_y * dom_dim_z);
       local_max_error =
           calc_residual_max(start, end, dom_dim_x, dom_dim_y, dom_dim_z, e);
 
@@ -675,7 +672,8 @@ int main(int argc, char *argv[]) {
       } else {
 
         // If supposed local convergence criterion not satisfied again,
-        // this is not true local convergence but likely the effect of oscillations
+        // this is not true local convergence but likely the effect of
+        // oscillations
         if (slocalcv == 1.0) {
           slocalcv = 0.0;
           extra_steps = 0;
@@ -693,7 +691,7 @@ int main(int argc, char *argv[]) {
         // Still monitor values received from left neighbor
         left_recv = calc_array_max(0, dom_dim_y * dom_dim_z, win_mem);
 
-        // If values received from left neighbor change significantly, 
+        // If values received from left neighbor change significantly,
         // it means that compute iterations have to be restarted
         if (fabs(left_recv - prev_left_recv) > 1e-3) {
           prev_left_recv = left_recv;
@@ -709,7 +707,7 @@ int main(int argc, char *argv[]) {
         right_recv = calc_array_max(dom_dim_y * dom_dim_z,
                                     2 * dom_dim_y * dom_dim_z, win_mem);
 
-        // If values received from right neighbor change significantly, 
+        // If values received from right neighbor change significantly,
         // it means that compute iterations have to be restarted
         if (fabs(right_recv - prev_right_recv) > 1e-3) {
           prev_right_recv = right_recv;
@@ -762,13 +760,13 @@ int main(int argc, char *argv[]) {
       // and check for global convergence
       if (taskid == MASTER) {
 
-        // This dummy lock and unlock is done just to ensure progress in MPI 
+        // This dummy lock and unlock is done just to ensure progress in MPI
         MPI_Win_lock(MPI_LOCK_SHARED, taskid, 0, win);
         MPI_Win_unlock(taskid, win);
 
-        // Only send local convergence information when there is a change 
+        // Only send local convergence information when there is a change
         if (prev_localcv != localcv) {
-       
+
           // send to right
           MPI_Win_lock(MPI_LOCK_SHARED, right, 0, win);
           MPI_Put(&localcv, 1, MPI_DOUBLE, right,
@@ -816,8 +814,7 @@ int main(int argc, char *argv[]) {
   // Calculate the final global residual for verification
   MPI_Allreduce(&local_avg_residual, &final_global_avg_residual, 1, MPI_DOUBLE,
                 MPI_SUM, MPI_COMM_WORLD);
-  final_global_avg_residual =
-      final_global_avg_residual / numtasks;
+  final_global_avg_residual = final_global_avg_residual / numtasks;
 
   MPI_Allreduce(&local_max_residual, &final_global_max_residual, 1, MPI_DOUBLE,
                 MPI_SUM, MPI_COMM_WORLD);
@@ -887,7 +884,7 @@ void update(int start, int end, int nx, int ny, int nz, long int wsteps,
 
   int ix, iy, iz;
 
-  // Matrix dimensions are lesser than that of domain due to boundary conditions 
+  // Matrix dimensions are lesser than that of domain due to boundary conditions
   int mx = nx - 2;
   int my = ny - 2;
   int mz = nz - 2;

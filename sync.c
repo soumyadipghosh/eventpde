@@ -18,8 +18,8 @@ Author - Soumyadip Ghosh
 #define TOL 1e-8 /* tolerance for convergence */
 
 void readData(double *, double *, int, int, int);
-void update(int, int, int, int, int, long int, double *, double *,
-            double *, double *);
+void update(int, int, int, int, int, long int, double *, double *, double *,
+            double *);
 void calc_residual(int, int, int, int, int, long int, double *, double *,
                    double *, double *);
 double calc_residual_sum(int, int, int, int, int, double *);
@@ -28,8 +28,8 @@ double calc_array_sum(int, int, double *);
 double calc_array_max(int, int, double *);
 
 int main(int argc, char *argv[]) {
-  int NXPROB = atoi(argv[1]);      // x dimension of domain
-  int file_write = atoi(argv[2]);  // file write during solver
+  int NXPROB = atoi(argv[1]);     // x dimension of domain
+  int file_write = atoi(argv[2]); // file write during solver
 
   int NYPROB; // y dimension of domain
   int NZPROB; // z dimension of domain
@@ -39,12 +39,10 @@ int main(int argc, char *argv[]) {
   if (NXPROB == 1600) {
     NYPROB = 100;
     NZPROB = 100;
-  }
-  else if (NXPROB == 2400) {
+  } else if (NXPROB == 2400) {
     NYPROB = 150;
     NZPROB = 150;
-  } 
-  else {
+  } else {
     NYPROB = NXPROB;
     NZPROB = NXPROB;
   }
@@ -63,13 +61,12 @@ int main(int argc, char *argv[]) {
       msgtype = 0,          // for message types
       start = 0, end = 0,   // for sub-domain assigned to this rank
       i = 0, ix = 0, iy = 0, iz = 0, it = 0; // loop variables
-  long int wsteps = 0;      // compute iterations
+  long int wsteps = 0;                       // compute iterations
   MPI_Status status;
   MPI_Request req1, req2, req3, req4;
   double tstart = 0.0, tend = 0.0;
   double cpu_time_used = 0.0;
-  char name[30], send[30], res[30], grid_str[10], proc_str[4],
-       task_str[4];
+  char name[30], send[30], res[30], grid_str[10], proc_str[4], task_str[4];
 
   // iteration residuals
   double local_avg_residual = 0.0;
@@ -244,7 +241,7 @@ int main(int argc, char *argv[]) {
 
   if (file_write == 1) {
     fs = fopen(send, "w");
-  } 
+  }
 
   do {
 
@@ -255,7 +252,7 @@ int main(int argc, char *argv[]) {
     left_send_norm = calc_array_sum(0, dom_dim_y * dom_dim_z,
                                     (u + offset * dom_dim_y * dom_dim_z)) /
                      dom_dim_y * dom_dim_z;
-    right_send_norm = 
+    right_send_norm =
         calc_array_sum(0, dom_dim_y * dom_dim_z,
                        (u + (offset + rows - 1) * dom_dim_y * dom_dim_z)) /
         dom_dim_y * dom_dim_z;
@@ -292,44 +289,42 @@ int main(int argc, char *argv[]) {
     MPI_Wait(&req4, &status);
 
     // Calculate residuals / iteration errors
-    calc_residual(start, end, dom_dim_x, dom_dim_y, dom_dim_z, wsteps,
-                  mat, u, b, residual);
+    calc_residual(start, end, dom_dim_x, dom_dim_y, dom_dim_z, wsteps, mat, u,
+                  b, residual);
 
-      local_avg_residual =
-          calc_residual_sum(start, end, dom_dim_x, dom_dim_y, dom_dim_z,
-                            residual) / (rows * dom_dim_y * dom_dim_z);
-      local_max_residual =
-          calc_residual_max(start, end, dom_dim_x, dom_dim_y, dom_dim_z,
-                            residual);
+    local_avg_residual = calc_residual_sum(start, end, dom_dim_x, dom_dim_y,
+                                           dom_dim_z, residual) /
+                         (rows * dom_dim_y * dom_dim_z);
+    local_max_residual = calc_residual_max(start, end, dom_dim_x, dom_dim_y,
+                                           dom_dim_z, residual);
 
-      local_avg_error =
-          calc_residual_sum(start, end, dom_dim_x, dom_dim_y, dom_dim_z,
-                            e) / (rows * dom_dim_y * dom_dim_z);
+    local_avg_error =
+        calc_residual_sum(start, end, dom_dim_x, dom_dim_y, dom_dim_z, e) /
+        (rows * dom_dim_y * dom_dim_z);
 
-      local_max_error =
-          calc_residual_max(start, end, dom_dim_x, dom_dim_y, dom_dim_z,
-                            e);
+    local_max_error =
+        calc_residual_max(start, end, dom_dim_x, dom_dim_y, dom_dim_z, e);
 
-      MPI_Allreduce(&local_avg_residual, &global_avg_residual, 1, MPI_DOUBLE,
-                    MPI_SUM, MPI_COMM_WORLD);
-      global_avg_residual = global_avg_residual / numtasks;
+    MPI_Allreduce(&local_avg_residual, &global_avg_residual, 1, MPI_DOUBLE,
+                  MPI_SUM, MPI_COMM_WORLD);
+    global_avg_residual = global_avg_residual / numtasks;
 
-      MPI_Allreduce(&local_max_residual, &global_max_residual, 1, MPI_DOUBLE,
-                    MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_max_residual, &global_max_residual, 1, MPI_DOUBLE,
+                  MPI_MAX, MPI_COMM_WORLD);
 
-      if (wsteps == 0) {
-        init_avg_residual = global_avg_residual;
-        init_max_residual = global_max_residual;
-      }
+    if (wsteps == 0) {
+      init_avg_residual = global_avg_residual;
+      init_max_residual = global_max_residual;
+    }
 
-      /*
-      MPI_Allreduce(&local_avg_error, &global_avg_error, 1, MPI_DOUBLE, MPI_SUM,
-                    MPI_COMM_WORLD);
-      global_avg_error = global_avg_error / numtasks;
+    /*
+    MPI_Allreduce(&local_avg_error, &global_avg_error, 1, MPI_DOUBLE, MPI_SUM,
+                  MPI_COMM_WORLD);
+    global_avg_error = global_avg_error / numtasks;
 
-      MPI_Allreduce(&local_max_error, &global_max_error, 1, MPI_DOUBLE, MPI_MAX,
-                    MPI_COMM_WORLD);
-      */
+    MPI_Allreduce(&local_max_error, &global_max_error, 1, MPI_DOUBLE, MPI_MAX,
+                  MPI_COMM_WORLD);
+    */
 
     if (taskid == 0)
       printf(
@@ -338,7 +333,7 @@ int main(int argc, char *argv[]) {
           global_max_error);
     wsteps = wsteps + 1;
 
-    } while (fabs(global_max_residual / init_max_residual) > TOL); // end while
+  } while (fabs(global_max_residual / init_max_residual) > TOL); // end while
   //} while (fabs(global_avg_error) > TOL);
 
   // printf("Out of loop for proc %d after %d iterations\n",taskid, wsteps-1);
@@ -405,8 +400,8 @@ int main(int argc, char *argv[]) {
   MPI_Finalize();
 } /*end of main*/
 
-void update(int start, int end, int nx, int ny, int nz,
-            long int wsteps, double *mat, double *u, double *b, double *e) {
+void update(int start, int end, int nx, int ny, int nz, long int wsteps,
+            double *mat, double *u, double *b, double *e) {
 
   int ix, iy, iz;
 
@@ -472,9 +467,8 @@ void update(int start, int end, int nx, int ny, int nz,
   }
 }
 
-void calc_residual(int start, int end, int nx, int ny, int nz,
-                   long int wsteps, double *mat, double *u, double *b,
-                   double *residual) {
+void calc_residual(int start, int end, int nx, int ny, int nz, long int wsteps,
+                   double *mat, double *u, double *b, double *residual) {
 
   int ix, iy, iz;
 
