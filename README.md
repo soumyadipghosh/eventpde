@@ -4,11 +4,11 @@ This repository proposes a novel event-triggered communication algorithm in a pa
 
 ## Data
 
-The sample coefficient files can be downloaded from [here](https://drive.google.com/drive/folders/1yLN4ZdNs9yilXHv7kZ5snrx4pdx2VCx9?usp=sharing). The coeff1600.dat file has the coefficients for the 8 x 0.5 x 0.5 domain considered in the paper with a 1600 x 100 x 100 discretization. The simulation results reported in the paper are based on this file. The coeff800.dat file has the coefficients for the same domain but with a different discretization of 800 x 50 x 50. 
+The sample coefficient files can be downloaded from [here](https://drive.google.com/drive/folders/1yLN4ZdNs9yilXHv7kZ5snrx4pdx2VCx9?usp=sharing). The coeff1600.dat file has the coefficients for the 8 x 0.5 x 0.5 domain considered in the paper with a 1600 x 100 x 100 discretization. The simulation results reported in the paper are based on this file. The coeff800.dat file has the coefficients for the same domain but with a different discretization of 800 x 50 x 50. Note that the path to the file has to be changed and the first dimension has to be provided as the first runtime argument accordingly.
 
 ## Instructions
 
-Code for the three types of algorithms described in the paper below can be run as follows:
+MPI (Message Passing Interface) is a dependency. Code for the three types of algorithms described in the paper below can be run as follows:
 
 ### Synchronous 
 
